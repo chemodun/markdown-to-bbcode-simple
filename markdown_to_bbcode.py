@@ -82,7 +82,8 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
     def replace_images(match):
         image_url = match.group(1)
         if repo_name and not re.match(r'^https?://', image_url):
-            absolute_url = f"https://github.com/{repo_name}/raw/main/{relative_path}/{image_url}"
+            absolute_url = f"https://raw.githubusercontent.com/{repo_name}/refs/heads/main/{relative_path}/{image_url}"
+            absolute_url = absolute_url.replace('//', '/')
             if bbcode_type == 'egosoft':
                 return f"[spoiler][img]{absolute_url}[/img][/spoiler]"
             else:
@@ -323,7 +324,7 @@ def main():
         sys.exit(1)
 
     # Extract relative path part from input_path
-    relative_path = os.path.dirname(input_path)  
+    relative_path = os.path.dirname(input_path)
 
     # Convert Markdown to BBCode
     bbcode_result = convert_markdown_to_bbcode(markdown_content, repo_name=repo_name, bbcode_type=bbcode_type, relative_path=relative_path)
