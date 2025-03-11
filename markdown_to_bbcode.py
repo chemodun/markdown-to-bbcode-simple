@@ -82,8 +82,9 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
     def replace_images(match):
         image_url = match.group(1)
         if repo_name and not re.match(r'^https?://', image_url):
-            absolute_url = f"https://raw.githubusercontent.com/{repo_name}/refs/heads/main/{relative_path}/{image_url}"
+            absolute_url = f"raw.githubusercontent.com/{repo_name}/refs/heads/main/{relative_path}/{image_url}"
             absolute_url = absolute_url.replace('//', '/')
+            absolute_url = f"https://{absolute_url}"
             if bbcode_type == 'egosoft':
                 return f"[spoiler][img]{absolute_url}[/img][/spoiler]"
             else:
@@ -114,7 +115,10 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
     # Convert [text](url) to [url=url]text[/url]
     def replace_links(match):
         link_text, link_url = match.groups()
-        if repo_name and not re.match(r'^https?://', link_url):
+        if bbcode_type == 'steam' and 'youtube.com/watch?v=' in link_url:
+            video_id = re.search(r'v=([^&]+)', link_url).group(1)
+            return f"[previewyoutube={video_id};full][/previewyoutube]"
+        elif repo_name and not re.match(r'^https?://', link_url):
             absolute_url = f"https://github.com/{repo_name}/raw/main/{relative_path}/{link_url}"
             return f"[url={absolute_url}]{link_text}[/url]"
         else:
