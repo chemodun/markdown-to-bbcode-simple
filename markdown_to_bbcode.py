@@ -111,39 +111,7 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
 
     bbcode_text = re.sub(r'```(\w+)?\n([\s\S]*?)\n(\s*)```', replace_block_code, bbcode_text)
 
-    # 4. Links
-    # Convert [text](url) to [url=url]text[/url]
-    def replace_links(match):
-        link_text, link_url = match.groups()
-        if bbcode_type == 'steam' and 'youtube.com/watch?v=' in link_url:
-            video_id = re.search(r'v=([^&]+)', link_url).group(1)
-            return f"{link_text}\n[previewyoutube={video_id};full][/previewyoutube]"
-        elif bbcode_type == 'nexus' and 'youtube.com/watch?v=' in link_url:
-            video_id = re.search(r'v=([^&]+)', link_url).group(1)
-            return f"{link_text}\n[youtube]{video_id}[/youtube]"
-        elif repo_name and not re.match(r'^https?://', link_url):
-            absolute_url = f"https://github.com/{repo_name}/raw/main/{relative_path}/{link_url}"
-            return f"[url={absolute_url}]{link_text}[/url]"
-        else:
-            return f"[url={link_url}]{link_text}[/url]"
-
-    bbcode_text = re.sub(r'\[(.*?)\]\((.*?)\)', replace_links, bbcode_text)
-
-    # 5. Bold
-    # Convert **text** or __text__ to [b]text[/b]
-    bbcode_text = re.sub(r'(\*\*|__)(.*?)\1', r'[b]\2[/b]', bbcode_text)
-
-    # 6. Italics
-    # Convert *text* or _text_ to [i]text[/i]
-    # Only match if the marker is preceded by a space or start of line
-    # This prevents matching underscores within URLs or words like some_word
-    bbcode_text = re.sub(r'(^|\s)(\*|_)(?!\2)(.*?)\2', r'\1[i]\3[/i]', bbcode_text)
-
-    # 7. Inline Code
-    # Convert `text` to [b]text[/b]
-    bbcode_text = re.sub(r'`([^`\n]+)`', r'[b]\1[/b]', bbcode_text)
-
-    # 8. Lists
+    # 4. Lists
     # Convert unordered and ordered lists to BBCode
     def parse_list_items(lines):
         list_stack = []
@@ -225,6 +193,38 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
 
     bbcode_text = re.sub(r'(?:^\s*[-*+]\s+.*\n?)+', replace_lists, bbcode_text, flags=re.MULTILINE)
     bbcode_text = re.sub(r'(?:^\s*\d+\.\s+.*\n?)+', replace_lists, bbcode_text, flags=re.MULTILINE)
+
+    # 5. Links
+    # Convert [text](url) to [url=url]text[/url]
+    def replace_links(match):
+        link_text, link_url = match.groups()
+        if bbcode_type == 'steam' and 'youtube.com/watch?v=' in link_url:
+            video_id = re.search(r'v=([^&]+)', link_url).group(1)
+            return f"{link_text}\n[previewyoutube={video_id};full][/previewyoutube]"
+        elif bbcode_type == 'nexus' and 'youtube.com/watch?v=' in link_url:
+            video_id = re.search(r'v=([^&]+)', link_url).group(1)
+            return f"{link_text}\n[youtube]{video_id}[/youtube]"
+        elif repo_name and not re.match(r'^https?://', link_url):
+            absolute_url = f"https://github.com/{repo_name}/raw/main/{relative_path}/{link_url}"
+            return f"[url={absolute_url}]{link_text}[/url]"
+        else:
+            return f"[url={link_url}]{link_text}[/url]"
+
+    bbcode_text = re.sub(r'\[([^[]+)\]\((.*?)\)', replace_links, bbcode_text)
+
+    # 6. Bold
+    # Convert **text** or __text__ to [b]text[/b]
+    bbcode_text = re.sub(r'(\*\*|__)(.*?)\1', r'[b]\2[/b]', bbcode_text)
+
+    # 7. Italics
+    # Convert *text* or _text_ to [i]text[/i]
+    # Only match if the marker is preceded by a space or start of line
+    # This prevents matching underscores within URLs or words like some_word
+    bbcode_text = re.sub(r'(^|\s)(\*|_)(?!\2)(.*?)\2', r'\1[i]\3[/i]', bbcode_text)
+
+    # 8. Inline Code
+    # Convert `text` to [b]text[/b]
+    bbcode_text = re.sub(r'`([^`\n]+)`', r'[b]\1[/b]', bbcode_text)
 
     # 9. Blockquotes
     # Convert > Quote to [quote]Quote[/quote]
