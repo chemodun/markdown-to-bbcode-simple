@@ -1,0 +1,26 @@
+{
+    "version": "0.2",
+    "ignorePaths": [],
+    "dictionaryDefinitions": [],
+    "dictionaries": [],
+    "words": [
+        "Antialiasing",
+        "bbcode",
+        "blockquotes",
+        "chemodun",
+        "egosoft",
+        "levelname",
+        "lxml",
+        "mapdef",
+        "mapdefaults",
+        "onefile",
+        "Pixmap",
+        "previewyoutube",
+        "pyinstaller",
+        "sectordropdown",
+        "softprops",
+        "standardzone"
+    ],
+    "ignoreWords": [],
+    "import": []
+}
