@@ -117,10 +117,10 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
         link_text, link_url = match.groups()
         if bbcode_type == 'steam' and 'youtube.com/watch?v=' in link_url:
             video_id = re.search(r'v=([^&]+)', link_url).group(1)
-            return f"[previewyoutube={video_id};full][/previewyoutube]"
+            return f"{link_text}\n[previewyoutube={video_id};full][/previewyoutube]"
         elif bbcode_type == 'nexus' and 'youtube.com/watch?v=' in link_url:
             video_id = re.search(r'v=([^&]+)', link_url).group(1)
-            return f"[youtube]{video_id}[/youtube]"
+            return f"{link_text}\n[youtube]{video_id}[/youtube]"
         elif repo_name and not re.match(r'^https?://', link_url):
             absolute_url = f"https://github.com/{repo_name}/raw/main/{relative_path}/{link_url}"
             return f"[url={absolute_url}]{link_text}[/url]"
