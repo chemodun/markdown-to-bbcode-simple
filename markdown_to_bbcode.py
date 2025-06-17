@@ -341,6 +341,8 @@ def main():
     output_path = generate_output_filename(input_path, bbcode_type, output_folder)
 
     try:
+        if not os.path.exists(os.path.dirname(output_path)):
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, 'w', encoding='utf-8') as outfile:
             outfile.write(bbcode_result)
         print(f"Successfully converted '{input_path}' to '{output_path}'.")
