@@ -275,9 +275,10 @@ def generate_output_filename(input_file, bbcode_type, output_folder):
     Returns:
         str: Generated output file path.
     """
+    folder = os.path.dirname(input_file)
     base = os.path.splitext(os.path.basename(input_file))[0]
     output_filename = f"{base}.{bbcode_type}"
-    return os.path.join(output_folder, output_filename)
+    return os.path.join(folder, output_folder, output_filename)
 
 def get_repo_name():
     """
