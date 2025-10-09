@@ -150,10 +150,7 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
                     while list_stack and indent < current_indent:
                         parent_list, parent_indent, parent_type = list_stack.pop()
                         if parent_type == 'ordered':
-                            if bbcode_type == 'nexus':
-                                parent_list.append(f"[olist]\n" + "\n".join(current_list) + "\n[/olist]")
-                            else:
-                                parent_list.append(f"[list=1]\n" + "\n".join(current_list) + "\n[/list]")
+                            parent_list.append(f"[list=1]\n" + "\n".join(current_list) + "\n[/list]")
                         else:
                             parent_list.append(f"[list]\n" + "\n".join(current_list) + "\n[/list]")
                         current_list = parent_list
@@ -167,19 +164,13 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
         while list_stack:
             parent_list, parent_indent, parent_type = list_stack.pop()
             if parent_type == 'ordered':
-                if bbcode_type == 'nexus':
-                    parent_list.append(f"[olist]\n" + "\n".join(current_list) + "\n[/olist]")
-                else:
-                    parent_list.append(f"[list=1]\n" + "\n".join(current_list) + "\n[/list]")
+                parent_list.append(f"[list=1]\n" + "\n".join(current_list) + "\n[/list]")
             else:
                 parent_list.append(f"[list]\n" + "\n".join(current_list) + "\n[/list]")
             current_list = parent_list
 
         if list_type == 'ordered':
-            if bbcode_type == 'nexus':
-                return "[olist]" + "\n".join(current_list) + "\n[/olist]"
-            else:
-                return "[list=1]" + "\n".join(current_list) + "\n[/list]"
+            return "[list=1]" + "\n".join(current_list) + "\n[/list]"
         else:
             return "[list]" + "\n".join(current_list) + "\n[/list]"
 
