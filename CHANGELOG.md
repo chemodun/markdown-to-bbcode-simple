@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/chemodun/markdown-to-bbcode-simple/compare/v0.1.1...v0.1.2) (2025-10-09)
+
+
+### Bug Fixes
+
+* Nexus ordered list handling in BBCode conversion ([d3ee6b6](https://github.com/chemodun/markdown-to-bbcode-simple/commit/d3ee6b645967ee7a37f9c33aaa8f75a49ecfeff0))
+
 ## [0.1.1](https://github.com/chemodun/markdown-to-bbcode-simple/compare/v0.1.0...v0.1.1) (2025-10-09)
 
 
