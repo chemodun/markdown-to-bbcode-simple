@@ -3,6 +3,7 @@ import argparse
 import sys
 import os
 import subprocess
+from urllib.parse import urljoin
 
 def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egosoft', relative_path=None):
     """
@@ -194,6 +195,7 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
             return f"{link_text}\n[youtube]{video_id}[/youtube]"
         elif repo_name and not re.match(r'^https?://', link_url):
             absolute_url = f"https://github.com/{repo_name}/raw/main/{relative_path}/{link_url}"
+            absolute_url = urljoin(urljoin(f"https://github.com/{repo_name}/raw/main/", relative_path.strip('/')), link_url.strip('/'))
             return f"[url={absolute_url}]{link_text}[/url]"
         else:
             return f"[url={link_url}]{link_text}[/url]"
@@ -277,12 +279,10 @@ def get_repo_name():
     """
     try:
         repo_url = subprocess.check_output(['git', 'config', '--get', 'remote.origin.url'], encoding='utf-8').strip()
-        if repo_url.startswith('https://github.com/'):
-            repo_name = repo_url[len('https://github.com/'):]
-            return repo_name.rstrip('.git')
-        elif repo_url.startswith('git@github.com:'):
-            repo_name = repo_url[len('git@github.com:'):]
-            return repo_name.rstrip('.git')
+        pattern = re.compile(r"([^/:]+)/([^/]+)\.git$")
+        match = pattern.search(repo_url)
+        if match:
+            return f"{match.group(1)}/{match.group(2)}"
         else:
             print(f"Error: Unsupported repository URL format: {repo_url}")
             sys.exit(1)
