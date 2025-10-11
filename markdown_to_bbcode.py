@@ -279,7 +279,7 @@ def get_repo_name():
     """
     try:
         repo_url = subprocess.check_output(['git', 'config', '--get', 'remote.origin.url'], encoding='utf-8').strip()
-        pattern = re.compile(r"([^/:]+)/([^/]+)\.git$")
+        pattern = re.compile(r"([^/:]+)/([^/]+?)(?:\.git)?$")
         match = pattern.search(repo_url)
         if match:
             return f"{match.group(1)}/{match.group(2)}"
