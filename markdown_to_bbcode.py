@@ -5,7 +5,7 @@ import os
 import subprocess
 from urllib.parse import urljoin
 
-def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egosoft', relative_path=None):
+def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egosoft', relative_path=None, skip_toc=False):
     """
     Converts Markdown formatted text to BBCode formatted text.
 
@@ -21,6 +21,30 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
     """
 
     bbcode_text = markdown_text
+
+    # Optionally strip table of contents blocks from the document before conversion
+    if skip_toc:
+        lines = bbcode_text.splitlines()
+        processed_lines = []
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+            if re.match(r'^\s{0,3}#{1,6}\s+table of contents\b', line, flags=re.IGNORECASE):
+                # Skip the heading and any immediately following list entries
+                i += 1
+                while i < len(lines):
+                    next_line = lines[i]
+                    if next_line.strip() == "":
+                        i += 1
+                        continue
+                    if re.match(r'^\s*(?:[-*+]\s+|\d+\.\s+)', next_line):
+                        i += 1
+                        continue
+                    break
+                continue
+            processed_lines.append(line)
+            i += 1
+        bbcode_text = "\n".join(processed_lines)
 
     # 1. Headers
     # Define size mapping based on BBCode type
@@ -250,6 +274,8 @@ def parse_arguments():
                         help='Type of BBCode format to use (default: egosoft).')
     parser.add_argument('-r', '--repo', help='GitHub repository name (e.g., username/repo) to generate absolute image URLs.', default=None)
     parser.add_argument('-o', '--output-folder', help='Path to the output folder. Defaults to the current directory.', default='.')
+    parser.add_argument('--skip-toc', action='store_true',
+                        help='Leave Markdown table of contents sections unchanged during conversion.')
 
     return parser.parse_args()
 
@@ -323,7 +349,13 @@ def main():
     relative_path = os.path.dirname(input_path)
 
     # Convert Markdown to BBCode
-    bbcode_result = convert_markdown_to_bbcode(markdown_content, repo_name=repo_name, bbcode_type=bbcode_type, relative_path=relative_path)
+    bbcode_result = convert_markdown_to_bbcode(
+        markdown_content,
+        repo_name=repo_name,
+        bbcode_type=bbcode_type,
+        relative_path=relative_path,
+        skip_toc=args.skip_toc
+    )
 
     # Generate output file name
     output_path = generate_output_filename(input_path, bbcode_type, output_folder)
