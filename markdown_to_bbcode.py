@@ -236,11 +236,15 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
     # This prevents matching underscores within URLs or words like some_word
     bbcode_text = re.sub(r'(^|\s)(\*|_)(?!\2)(.*?)\2', r'\1[i]\3[/i]', bbcode_text)
 
-    # 8. Inline Code
+    # 8. Strikethrough
+    # Convert ~~text~~ to [s]text[/s]
+    bbcode_text = re.sub(r'~~(.*?)~~', r'[s]\1[/s]', bbcode_text)
+
+    # 9. Inline Code
     # Convert `text` to [b]text[/b]
     bbcode_text = re.sub(r'`([^`\n]+)`', r'[b]\1[/b]', bbcode_text)
 
-    # 9. Blockquotes
+    # 10. Blockquotes
     # Convert > Quote to [quote]Quote[/quote]
     def replace_blockquotes(match):
         quote = match.group(1)
@@ -248,11 +252,11 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
 
     bbcode_text = re.sub(r'^>\s?(.*)', replace_blockquotes, bbcode_text, flags=re.MULTILINE)
 
-    # 10. Horizontal Rules
+    # 11. Horizontal Rules
     # Convert --- or *** or ___ to [hr]
     bbcode_text = re.sub(r'^(\*\*\*|---|___)$', r'[hr]', bbcode_text, flags=re.MULTILINE)
 
-    # 11. Line Breaks
+    # 12. Line Breaks
     # Convert two or more spaces at the end of a line to [br]
     bbcode_text = re.sub(r' {2,}\n', r'[br]\n', bbcode_text)
 
