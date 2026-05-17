@@ -136,7 +136,49 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
 
     bbcode_text = re.sub(r'```(\w+)?\n([\s\S]*?)\n(\s*)```', replace_block_code, bbcode_text)
 
-    # 4. Lists
+    # 4. Tables
+    # Convert markdown tables to BBCode lists (no platform supports table tags)
+    def replace_tables(match):
+        table_text = match.group(0)
+        rows = [row.strip() for row in table_text.strip().split('\n') if row.strip()]
+
+        if len(rows) < 2:
+            return table_text
+
+        def parse_row(row):
+            cells = [cell.strip() for cell in row.split('|')]
+            if cells and cells[0] == '':
+                cells = cells[1:]
+            if cells and cells[-1] == '':
+                cells = cells[:-1]
+            return cells
+
+        def is_separator_row(row):
+            return bool(re.match(r'^\|[\s|:\-]+\|$', row))
+
+        if not is_separator_row(rows[1]):
+            return table_text
+
+        headers = parse_row(rows[0])
+        data_rows = [parse_row(row) for row in rows[2:]]
+
+        result_lines = ['[list]']
+        for data_row in data_rows:
+            first_val = data_row[0] if data_row else ''
+            result_lines.append(f'[*] {headers[0]}: {first_val}')
+            if len(headers) > 1:
+                result_lines.append('[list]')
+                for i in range(1, len(headers)):
+                    val = data_row[i] if i < len(data_row) else ''
+                    result_lines.append(f'[*] {headers[i]}: {val}')
+                result_lines.append('[/list]')
+        result_lines.append('[/list]')
+
+        return '\n'.join(result_lines)
+
+    bbcode_text = re.sub(r'(?:^\|[^\n]+\n)+', replace_tables, bbcode_text, flags=re.MULTILINE)
+
+    # 5. Lists
     # Convert unordered and ordered lists to BBCode
     def parse_list_items(lines):
         list_stack = []
@@ -207,7 +249,7 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
     bbcode_text = re.sub(r'(?:^\s*[-*+]\s+.*\n?)+', replace_lists, bbcode_text, flags=re.MULTILINE)
     bbcode_text = re.sub(r'(?:^\s*\d+\.\s+.*\n?)+', replace_lists, bbcode_text, flags=re.MULTILINE)
 
-    # 5. Links
+    # 6. Links
     # Convert [text](url) to [url=url]text[/url]
     def replace_links(match):
         link_text, link_url = match.groups()
@@ -226,25 +268,25 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
 
     bbcode_text = re.sub(r'\[([^[]+)\]\((.*?)\)', replace_links, bbcode_text)
 
-    # 6. Bold
+    # 7. Bold
     # Convert **text** or __text__ to [b]text[/b]
     bbcode_text = re.sub(r'(\*\*|__)(.*?)\1', r'[b]\2[/b]', bbcode_text)
 
-    # 7. Italics
+    # 8. Italics
     # Convert *text* or _text_ to [i]text[/i]
     # Only match if the marker is preceded by a space or start of line
     # This prevents matching underscores within URLs or words like some_word
     bbcode_text = re.sub(r'(^|\s)(\*|_)(?!\2)(.*?)\2', r'\1[i]\3[/i]', bbcode_text)
 
-    # 8. Strikethrough
+    # 9. Strikethrough
     # Convert ~~text~~ to [s]text[/s]
     bbcode_text = re.sub(r'~~(.*?)~~', r'[s]\1[/s]', bbcode_text)
 
-    # 9. Inline Code
+    # 10. Inline Code
     # Convert `text` to [b]text[/b]
     bbcode_text = re.sub(r'`([^`\n]+)`', r'[b]\1[/b]', bbcode_text)
 
-    # 10. Blockquotes
+    # 11. Blockquotes
     # Convert > Quote to [quote]Quote[/quote]
     def replace_blockquotes(match):
         quote = match.group(1)
@@ -252,11 +294,11 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
 
     bbcode_text = re.sub(r'^>\s?(.*)', replace_blockquotes, bbcode_text, flags=re.MULTILINE)
 
-    # 11. Horizontal Rules
+    # 12. Horizontal Rules
     # Convert --- or *** or ___ to [hr]
     bbcode_text = re.sub(r'^(\*\*\*|---|___)$', r'[hr]', bbcode_text, flags=re.MULTILINE)
 
-    # 12. Line Breaks
+    # 13. Line Breaks
     # Convert two or more spaces at the end of a line to [br]
     bbcode_text = re.sub(r' {2,}\n', r'[br]\n', bbcode_text)
 
