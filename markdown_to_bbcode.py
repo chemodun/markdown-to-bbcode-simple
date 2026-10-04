@@ -284,11 +284,11 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
 
     # 10. Inline Code
     # Convert `text` to [b]text[/b]
-    # Backticks inside words (non-space char immediately before or after) are left as-is.
+    # Backticks inside words (word char immediately before or after) are left as-is; punctuation is fine.
     # Escaped backticks \` are converted to a literal `.
     _BACKTICK_PLACEHOLDER = '\x00BACKTICK\x00'
     bbcode_text = bbcode_text.replace('\\`', _BACKTICK_PLACEHOLDER)
-    bbcode_text = re.sub(r'(?<!\S)`([^`\n]+)`(?!\S)', r'[b]\1[/b]', bbcode_text)
+    bbcode_text = re.sub(r'(?<![\w`])`([^`\n]+)`(?![\w`])', r'[b]\1[/b]', bbcode_text)
     bbcode_text = bbcode_text.replace(_BACKTICK_PLACEHOLDER, '`')
 
     # 11. Blockquotes
