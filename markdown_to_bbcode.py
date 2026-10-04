@@ -266,7 +266,8 @@ def convert_markdown_to_bbcode(markdown_text, repo_name=None, bbcode_type='egoso
         else:
             return f"[url={link_url}]{link_text}[/url]"
 
-    bbcode_text = re.sub(r'\[([^[]+)\]\((.*?)\)', replace_links, bbcode_text)
+    # Link text may hold one level of balanced brackets: [[Tag] Title](url)
+    bbcode_text = re.sub(r'\[((?:[^\[\]]|\[[^\[\]]*\])+)\]\((.*?)\)', replace_links, bbcode_text)
 
     # 7. Bold
     # Convert **text** or __text__ to [b]text[/b]
